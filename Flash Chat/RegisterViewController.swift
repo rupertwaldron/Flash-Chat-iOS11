@@ -7,9 +7,10 @@
 
 import UIKit
 import Firebase
+import GoogleSignIn
 
 
-class RegisterViewController: UIViewController {
+class RegisterViewController: UIViewController, GIDSignInUIDelegate {
 
     
     //Pre-linked IBOutlets
@@ -17,9 +18,12 @@ class RegisterViewController: UIViewController {
     @IBOutlet var emailTextfield: UITextField!
     @IBOutlet var passwordTextfield: UITextField!
     
+    @IBOutlet weak var signInButton: GIDSignInButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        GIDSignIn.sharedInstance().uiDelegate = self
+        GIDSignIn.sharedInstance().signIn()
     }
 
     override func didReceiveMemoryWarning() {

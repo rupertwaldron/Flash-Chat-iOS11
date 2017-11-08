@@ -8,9 +8,39 @@
 
 import UIKit
 import Firebase
+import GoogleSignIn
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
+    
+    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error?) {
+        // ...
+        if let error = error {
+            print(error)
+            return
+        }
+        
+        guard let authentication = user.authentication else { return }
+        let credential = GoogleAuthProvider.credential(withIDToken: authentication.idToken, accessToken: authentication.accessToken)
+        Auth.auth().signIn(with: credential) { (user, error) in
+            if let error = error {
+                print(error)
+                return
+            }
+            print("Registration Sucessfull!")
+            self.window?.rootViewController!.performSegue(withIdentifier: "goToChat", sender: nil)
+        }
+    }
+    
+    func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!, withError error: Error!) {
+        let firebaseAuth = Auth.auth()
+        do {
+            try firebaseAuth.signOut()
+        } catch let signOutError as NSError {
+            print ("Error signing out: %@", signOutError)
+        }
+    }
+    
 
     var window: UIWindow?
     
@@ -19,16 +49,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         //TODO: Initialise and Configure your Firebase here:
         FirebaseApp.configure()
+        GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
+        GIDSignIn.sharedInstance().delegate = self
         // initialise database
         let myDatabase = Database.database().reference()
         myDatabase.setValue("We've got data!")
         return true
     }
+    
+    @available(iOS 9.0, *)
+    func application(_ application: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any])
+        -> Bool {
+            return GIDSignIn.sharedInstance().handle(url,
+        sourceApplication:options[UIApplicationOpenURLOptionsKey.sourceApplication] as? String, annotation: [:])
+    }
 
-    
-    
-    
-    
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
@@ -58,7 +93,7 @@ let APP_ID = "5H62DKM7JuG6kBBzVICydweQkSQTZD8vsFtoEEew"
 let CLIENT_KEY = "UMkw6hwriImwSAEtwxlMbrJXtcccrTR6jdcRS9IN"
     
 */
-
-
 }
+
+
 
