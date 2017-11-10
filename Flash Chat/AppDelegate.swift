@@ -51,9 +51,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         FirebaseApp.configure()
         GIDSignIn.sharedInstance().clientID = FirebaseApp.app()?.options.clientID
         GIDSignIn.sharedInstance().delegate = self
-        // initialise database
-        let myDatabase = Database.database().reference()
-        myDatabase.setValue("We've got data!")
+        // initialise database this will wipe out database on each load
+        //let myDatabase = Database.database().reference()
+        //myDatabase.setValue("We've got data!")
         return true
     }
     
